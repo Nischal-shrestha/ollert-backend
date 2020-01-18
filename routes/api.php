@@ -13,9 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
 
 /**
  * API : v1
@@ -24,6 +22,12 @@ Route::group([
     'prefix' => 'v1'
 ], function ($router) {
 
+    /**
+     * Test Route
+     */
+    Route::middleware('auth:api')->get('me', function (Request $request) {
+        return $request->user();
+    });
 
     /**
      * Authentication Routes
@@ -34,6 +38,7 @@ Route::group([
         'prefix' => 'auth'
     ], function ($router) {
         Route::post('login', 'AuthController@login')->name('auth.login');
+        Route::post('register','AuthController@register')->name('auth.register');
         Route::post('refresh', 'AuthController@refresh')->name('auth.refresh');
         Route::delete('logout', 'AuthController@logout')->name('auth.logout');
     });

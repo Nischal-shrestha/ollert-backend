@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SignUpRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -74,6 +75,38 @@ class AuthController extends Controller
             //issue a password grant type token
             $response = json_decode((string) $this->issuePasswordToken($credentials)->getBody(), true);
             $response["token_grant"] = "PASSWORD";
+        }
+
+        return $response;
+    }
+
+    /**
+     * This method registers user if they provide unique Email
+     * and a valid password in their request. If they are 
+     * validated it returns a token and a refresh token
+     * 
+     * @param Illuminate\Http\Request $request
+     * @return json
+     */
+
+    public function register(SignUpRequest $request)
+    {
+        //name, email, password, password_confirmation
+        $validated = $request->validated();
+        $response = null;
+
+        $userDetails = $request->only('name','email','password','password_confirmation');
+        $newUser = new User;
+        $newUser->name = $request->query('name');
+        $newUser->email = $request->query('email');
+        $newUser->password = $request->query('password');
+
+        if($newUser->save()) {
+            $response = json_decode((string) $this->issuePasswordToken($userDetails)->getBody(), true);
+            $response["token_grant"] = "PASSWORD";
+            $this->composeStatus($response,'created','The user has been created');
+        }else{
+            $this->composeStatus($response,'failed','Failed to create user!');
         }
 
         return $response;
