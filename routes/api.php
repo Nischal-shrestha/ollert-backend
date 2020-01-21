@@ -28,6 +28,7 @@ Route::group([
     Route::middleware('auth:api')->get('me', function (Request $request) {
         return $request->user();
     });
+    
 
     /**
      * Authentication Routes
@@ -38,8 +39,27 @@ Route::group([
         'prefix' => 'auth'
     ], function ($router) {
         Route::post('login', 'AuthController@login')->name('auth.login');
-        Route::post('register','AuthController@register')->name('auth.register');
+        Route::post('register', 'AuthController@register')->name('auth.register');
         Route::post('refresh', 'AuthController@refresh')->name('auth.refresh');
         Route::delete('logout', 'AuthController@logout')->name('auth.logout');
+    });
+
+
+    /**
+     * Board routes
+     */
+    Route::group([
+        'namespace' => 'Api',
+        'middleware' => 'auth:api',
+        'prefix' => 'board'
+    ], function ($router) {
+        Route::get('/', 'BoardController@index')->name('board.index');
+        Route::post('/', 'BoardController@store')->name('board.store');
+        Route::get('/{board}', 'BoardController@show')->name('board.show');
+        Route::match(array('PUT', 'PATCH'), "/{board}", array(
+            'uses' => 'BoardController@update',
+            'as' => 'board.update'
+        ));
+        Route::delete('/{board}','BoardController@delete')->name('board.delete');
     });
 });
