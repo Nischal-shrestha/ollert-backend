@@ -70,7 +70,7 @@ class AuthController extends Controller
         }
 
         if (is_null($user)) {
-            $this->composerError($response, "invalid_credentails", "The user credentails were incorrect.");
+            $this->composeError($response, "invalid_credentails", "The user credentails were incorrect.");
         } else {
             //issue a password grant type token
             $response = json_decode((string) $this->issuePasswordToken($credentials)->getBody(), true);

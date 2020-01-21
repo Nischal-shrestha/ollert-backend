@@ -3,6 +3,8 @@
 namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Board;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -10,6 +12,13 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable
 {
     use Notifiable, HasApiTokens;
+
+
+    /**
+     * Key name referenced in board
+     */
+    protected $diffKeyName = 'owner_id';
+
 
     /**
      * The attributes that are mass assignable.
@@ -38,11 +47,60 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function getDiffKeyName()
+    {
+        return $this->diffKeyName;
+    }
+
+    /********************************
+     * Accessors
+     ********************************/
+
+
+    /********************************
+     * Mutators
+     ********************************/
+
     /**
      * Add a mutator to ensure hashed passwords
+     * 
+     * @return String
      */
     public function setPasswordAttribute($password)
     {
         $this->attributes['password'] = bcrypt($password);
+    }
+
+
+    /********************************
+     * Relationships
+     ********************************/
+
+
+    /**
+     * A user can have own zero or many boards
+     * 
+     * This method will only return the boards
+     * that the user owns / created
+     * 
+     * @return hasManyRelationship
+     */
+    public function ownedBoards()
+    {
+        return $this->hasMany(Board::class, $this->diffKeyName);
+    }
+
+    /**
+     * A user can be included in zero or many boards
+     * 
+     * This method will return owned boards as well
+     * the boards that we have been invited to
+     * 
+     * @return belongsToMany
+     */
+
+    public function boards()
+    {
+        return $this->belongsToMany(Board::class)->withPivot('is_owner');
     }
 }
