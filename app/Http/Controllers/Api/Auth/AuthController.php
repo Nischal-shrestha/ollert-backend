@@ -109,7 +109,7 @@ class AuthController extends Controller
         $newUser->password = $request->query('password');
 
         if ($newUser->save()) {
-            $tokenData = $this->issuePasswordToken($credentials);
+            $tokenData = $this->issuePasswordToken($userDetails);
             if ($tokenData->getStatusCode() == 200) {
                 $response = json_decode((string)$tokenData->getBody(), true);
                 $response["token_grant"] = "PASSWORD";
