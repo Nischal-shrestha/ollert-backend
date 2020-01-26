@@ -57,7 +57,7 @@ class AuthController extends Controller
      * validated it returns a token and a refresh token
      *
      * @param Request $request
-     * @return json
+     * @return JsonResponse
      */
     public function login(Request $request)
     {
@@ -75,11 +75,16 @@ class AuthController extends Controller
             $this->composeError($response, "invalid_credentails", "The user credentails were incorrect.");
         } else {
             //issue a password grant type token
-            $response = json_decode((string) $this->issuePasswordToken($credentials)->getBody(), true);
-            $response["token_grant"] = "PASSWORD";
+            $tokenData = $this->issuePasswordToken($credentials);
+            if ($tokenData->getStatusCode() == 200) {
+                $response = json_decode((string)$tokenData->getBody(), true);
+                $response["token_grant"] = "PASSWORD";
+            } else {
+                $this->composeError($response, "failed", "There is something wrong server side.");
+            }
         }
 
-        return $response;
+        return response()->json($response, 200);
     }
 
     /**
@@ -97,19 +102,24 @@ class AuthController extends Controller
         $validated = $request->validated();
         $response = null;
 
-        $userDetails = $request->only('name','email','password','password_confirmation');
+        $userDetails = $request->only('name', 'email', 'password', 'password_confirmation');
         $newUser = new User;
         $newUser->name = $request->query('name');
         $newUser->email = $request->query('email');
         $newUser->password = $request->query('password');
 
-        if($newUser->save()) {
-            $response = json_decode((string) $this->issuePasswordToken($userDetails)->getBody(), true);
-            $response["token_grant"] = "PASSWORD";
-            $this->composeStatus($response,'created','The user has been created');
-            return response()->json($response,201);
-        }else{
-            $this->composeStatus($response,'failed','Failed to create user!');
+        if ($newUser->save()) {
+            $tokenData = $this->issuePasswordToken($credentials);
+            if ($tokenData->getStatusCode() == 200) {
+                $response = json_decode((string)$tokenData->getBody(), true);
+                $response["token_grant"] = "PASSWORD";
+                $this->composeStatus($response, 'created', 'The user has been created');
+            } else {
+                $this->composeError($response,"failed","The Server is having some issues.");
+            }
+            return response()->json($response, 201);
+        } else {
+            $this->composeStatus($response, 'failed', 'Failed to create user!');
             return response()->json($response);
         }
 
@@ -135,7 +145,7 @@ class AuthController extends Controller
             ],
         ]);
 
-        return json_decode((string) $response->getBody(), true);
+        return json_decode((string)$response->getBody(), true);
     }
 
     /**
@@ -158,6 +168,6 @@ class AuthController extends Controller
             $this->composeError($response, "invalid_request", "Invalid Request");
         }
 
-        return response()->json($response,200);
+        return response()->json($response, 200);
     }
 }
