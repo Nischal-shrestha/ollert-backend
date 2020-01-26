@@ -22,10 +22,10 @@ class SignUpRequest extends FormRequest
     }
 
     /**
-     * Get the error messages for all defined validation rules.
-     * 
-     * @return array
-     */
+ * Get the error messages for all defined validation rules.
+ *
+ * @return array
+ */
 
     public function messages()
     {
