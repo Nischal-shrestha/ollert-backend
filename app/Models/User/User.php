@@ -5,6 +5,7 @@ namespace App\Models\User;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Models\Board\Board;
+use App\Models\Column\Column;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -105,5 +106,15 @@ class User extends Authenticatable
     public function boards()
     {
         return $this->belongsToMany(Board::class)->withPivot('is_owner');
+    }
+
+    /**
+     * A user can create many columns
+     *
+     * @return HasMany
+     */
+    public function columns()
+    {
+        return $this->hasMany(Column::class,'created_by');
     }
 }

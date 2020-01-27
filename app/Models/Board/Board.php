@@ -2,10 +2,12 @@
 
 namespace App\Models\Board;
 
+use App\Models\Column\Column;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Board extends Model
@@ -65,5 +67,14 @@ class Board extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('is_owner');
+    }
+
+    /**
+     * A Board can have many columns
+     *
+     * @return HasMany
+     */
+    public function columns() {
+        return $this->hasMany(Column::class);
     }
 }
