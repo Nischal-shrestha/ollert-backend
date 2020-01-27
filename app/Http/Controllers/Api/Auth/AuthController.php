@@ -48,6 +48,14 @@ class AuthController extends Controller
                 'scope' => '',
             ],
         ]);
+
+        if($response->getStatusCode() == 200) {
+            $response = json_decode((string) $response->getBody(),true);
+            $response["token_grant"] = "PASSWORD";
+        }else{
+            $response = null;
+        }
+
         return $response;
     }
 
@@ -75,12 +83,9 @@ class AuthController extends Controller
             $this->composeError($response, "invalid_credentails", "The user credentails were incorrect.");
         } else {
             //issue a password grant type token
-            $tokenData = $this->issuePasswordToken($credentials);
-            if ($tokenData->getStatusCode() == 200) {
-                $response = json_decode((string)$tokenData->getBody(), true);
-                $response["token_grant"] = "PASSWORD";
-            } else {
-                $this->composeError($response, "failed", "There is something wrong server side.");
+            $response = $this->issuePasswordToken($credentials);
+            if(is_null($response)) {
+                $this->composeError($response, "failed", "Could not issue a password grant token.");
             }
         }
 
@@ -109,13 +114,10 @@ class AuthController extends Controller
         $newUser->password = $request->query('password');
 
         if ($newUser->save()) {
-            $tokenData = $this->issuePasswordToken($userDetails);
-            if ($tokenData->getStatusCode() == 200) {
-                $response = json_decode((string)$tokenData->getBody(), true);
-                $response["token_grant"] = "PASSWORD";
-                $this->composeStatus($response, 'created', 'The user has been created');
-            } else {
-                $this->composeError($response,"failed","The Server is having some issues.");
+            //issue a password grant type token
+            $response = $this->issuePasswordToken($userDetails);
+            if(is_null($response)) {
+                $this->composeError($response, "failed", "There is something wrong server side.");
             }
             return response()->json($response, 201);
         } else {

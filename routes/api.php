@@ -20,8 +20,13 @@ use Illuminate\Support\Facades\Route;
  * API : v1
  */
 Route::group([
+    'namespace' => 'Api',
     'prefix' => 'v1'
 ], function ($router) {
+
+    Route::get('/test',function(Request $request){
+        return response()->json(App\Models\User\User::find(1));
+    });
 
     /**
      * Test Route
@@ -35,7 +40,7 @@ Route::group([
      * Authentication Routes
      */
     Route::group([
-        'namespace' => 'Api\Auth',
+        'namespace' => 'Auth',
         'middleware' => 'api',
         'prefix' => 'auth'
     ], function ($router) {
@@ -50,7 +55,6 @@ Route::group([
      * Board routes
      */
     Route::group([
-        'namespace' => 'Api',
         'middleware' => 'auth:api',
         'prefix' => 'board'
     ], function ($router) {
@@ -63,4 +67,23 @@ Route::group([
         ));
         Route::delete('/{board}','BoardController@delete')->name('board.delete');
     });
+
+    /**
+     * Column Routes
+     */
+    Route::group([
+        'middleware' => 'auth:api',
+        'prefix'    =>  'column'
+    ],function($router){
+        Route::get('/','ColumnController@index')->name('column.index');
+        Route::post('/','ColumnController@store')->name('column.store');
+        Route::get('/{column}','ColumnController@show')->name('column.show');
+        Route::match(array('PUT', 'PATCH'), "/{column}", array(
+            'uses' => 'ColumnController@update',
+            'as' => 'column.update'
+        ));
+        Route::delete('/{column}','ColumnController@delete')->name('column.delete');
+    });
+
+
 });
