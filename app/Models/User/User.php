@@ -4,7 +4,9 @@ namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use App\Board;
+use App\Models\Board\Board;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -63,7 +65,8 @@ class User extends Authenticatable
 
     /**
      * Add a mutator to ensure hashed passwords
-     * 
+     *
+     * @param $password
      * @return String
      */
     public function setPasswordAttribute($password)
@@ -79,11 +82,11 @@ class User extends Authenticatable
 
     /**
      * A user can have own zero or many boards
-     * 
+     *
      * This method will only return the boards
      * that the user owns / created
-     * 
-     * @return hasManyRelationship
+     *
+     * @return HasMany
      */
     public function ownedBoards()
     {
@@ -92,11 +95,11 @@ class User extends Authenticatable
 
     /**
      * A user can be included in zero or many boards
-     * 
+     *
      * This method will return owned boards as well
      * the boards that we have been invited to
-     * 
-     * @return belongsToMany
+     *
+     * @return BelongsToMany
      */
 
     public function boards()

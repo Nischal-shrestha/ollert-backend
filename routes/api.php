@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,7 @@ Route::group([
     Route::middleware('auth:api')->get('me', function (Request $request) {
         return $request->user();
     });
-    
+
 
     /**
      * Authentication Routes
